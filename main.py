@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
 # Charger le modèle initial
-model = joblib.load('model_v1.joblib')
+model = joblib.load('models/model_v1.joblib')
 
 # Créer l'application FastAPI
 app = FastAPI()
@@ -53,6 +53,13 @@ def preprocess_data(request: PredictionRequest):
                 'DeviceProtection', 'TechSupport', 'StreamingTV', 'StreamingMovies', 
                 'Contract', 'PaymentMethod']
     data = pd.get_dummies(data, columns=cat_cols, drop_first=True)
+    data = data.astype(int)
+    
+    expected_columns = joblib.load("models/columns.pkl")
+
+    # Transformer les nouvelles données et garantir que toutes les colonnes sont là
+    data = data.reindex(columns=expected_columns, fill_value=0)
+
     
     # Traiter les valeurs manquantes dans 'TotalCharges' avec la médiane
     if pd.isnull(data['TotalCharges'][0]):
@@ -62,12 +69,14 @@ def preprocess_data(request: PredictionRequest):
     scaler = StandardScaler()
     numeric_cols = ['tenure', 'MonthlyCharges', 'TotalCharges']
     data[numeric_cols] = scaler.fit_transform(data[numeric_cols])
+    print(data)
     
     return data
+
 # Fonction pour recharger le modèle automatiquement
 def load_model():
     global model
-    model = joblib.load('model_v1.joblib')
+    model = joblib.load('models/model_v1.joblib')
     print("Le modèle a été rechargé.")
 
 # Route pour prédire
@@ -87,4 +96,4 @@ def predict(request: PredictionRequest):
     prediction = model.predict(input_data)
     
     # Retourner la prédiction
-    return {"prediction": prediction[0]}
+    return {"prediction": int(prediction[0])}
