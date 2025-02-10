@@ -9,3 +9,4 @@ seaborn
 numpy
 pandas
 pydantic
+streamlit
