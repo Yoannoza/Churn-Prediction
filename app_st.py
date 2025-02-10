@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 
 # Définir l'URL de l'API FastAPI (remplace localhost par l'URL de Railway après déploiement)
-API_URL = "http://127.0.0.1:8000/predict"
+API_URL = "https://churn-prediction-api.up.railway.app/predict"
 
 # Configuration de la page
 st.set_page_config(page_title="Prédiction Churn Client", layout="centered")
